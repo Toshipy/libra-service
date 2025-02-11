@@ -14,3 +14,7 @@
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# デプロイ用のファイルを除外
+deploy.sh
+.serverless/

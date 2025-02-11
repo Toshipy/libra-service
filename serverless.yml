@@ -1,0 +1,38 @@
+service: search-api
+
+provider:
+  name: aws
+  runtime: python3.11
+  region: ap-northeast-1
+  environment:
+    OPENSEARCH_ENDPOINT: ${env:OPENSEARCH_ENDPOINT}
+    OPENSEARCH_USERNAME: ${env:OPENSEARCH_USERNAME}
+    OPENSEARCH_PASSWORD: ${env:OPENSEARCH_PASSWORD}
+
+functions:
+  api:
+    handler: main.handler
+    events:
+      - http:
+          path: /docs  # Swagger UI用
+          method: get
+      - http:
+          path: /openapi.json  # OpenAPI仕様用
+          method: get
+      - http:
+          path: /search  # 検索API
+          method: get
+      - http:
+          path: /{proxy+}  # その他のパス
+          method: any
+          
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    layer:
+      name: python-deps
+      description: Python dependencies
+    zip: true              # パッケージをZIP化
+    cleanupZipHelper: true # デプロイ後にクリーンアップ
