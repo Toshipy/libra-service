@@ -7,16 +7,17 @@ load_dotenv()  # .envファイルを読み込む
 def main() -> None:
     host = "localhost"
     port = 9200
-    auth = (
-        "admin",
-        os.getenv("OPENSEARCH_INITIAL_ADMIN_PASSWORD"),
-    )
+    # auth = (
+    #     "admin",
+    #     os.getenv("OPENSEARCH_INITIAL_ADMIN_PASSWORD"),
+    # )
     
     # クライアントを作成
     client = OpenSearch(
         hosts=[{"host": host, "port": port}],
-        http_auth=auth,
-        use_ssl=True,
+        # http_auth=auth,
+        http_compress=True,  # データ圧縮を有効化
+        use_ssl=False,      # HTTPSを無効化
         verify_certs=False,
         ssl_show_warn=False,
     )
@@ -25,25 +26,26 @@ def main() -> None:
 
     # インデックスを作成
     if not client.indices.exists(index=index_name):
-        index_settings = {
-            "settings": {
-                "analysis": {
-                    "analyzer": {
-                        "kuromoji": {
-                            "type": "kuromoji"
-                        }
-                    }
-                }
-            },
-            "mappings": {
-                "properties": {
-                    "name": {"type": "text", "analyzer": "kuromoji"},
-                    "story": {"type": "text", "analyzer": "kuromoji"},
-                    "attributes": {"type": "text", "analyzer": "kuromoji"}
-                }
-            }
-        }
-        client.indices.create(index=index_name, body=index_settings)
+        client.indices.create(index=index_name)
+        # index_settings = {
+        #     "settings": {
+        #         "analysis": {
+        #             "analyzer": {
+        #                 "kuromoji": {
+        #                     "type": "kuromoji"
+        #                 }
+        #             }
+        #         }
+        #     },
+        #     "mappings": {
+        #         "properties": {
+        #             "name": {"type": "text", "analyzer": "kuromoji"},
+        #             "story": {"type": "text", "analyzer": "kuromoji"},
+        #             "attributes": {"type": "text", "analyzer": "kuromoji"}
+        #         }
+        #     }
+        # }
+        # client.indices.create(index=index_name, body=index_settings)
     else:
         query = {"query": {"match_all": {}}}
         client.delete_by_query(index=index_name, body=query)
