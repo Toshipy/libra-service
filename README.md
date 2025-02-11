@@ -6,7 +6,7 @@ cloudflared tunnel --url http://localhost:9200
 
 ## デプロイ
 ```
-serverless deploy
+serverless deploy --verbose
 ```
 ## デプロイ情報を確認
 ``` 

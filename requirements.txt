@@ -3,4 +3,4 @@ aiohttp==3.9.3
 requests==2.31.0
 fastapi==0.109.2
 mangum==0.17.0
-pydantic==2.6.1
+pydantic==2.10.6

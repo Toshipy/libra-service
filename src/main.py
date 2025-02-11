@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from opensearchpy import OpenSearch
 from mangum import Mangum
 import os
-from schemas import SearchResult, SearchResponse
+from src.schemas import SearchResult, SearchResponse
 app = FastAPI(
   title="Search API",
   description="Search API for OpenSearch",

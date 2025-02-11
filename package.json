@@ -1,0 +1,23 @@
+{
+  "name": "booker-service",
+  "version": "1.0.0",
+  "description": "``` brew install cloudflared cloudflared tunnel --url http://localhost:9200 ```",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Toshipy/booker-service.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Toshipy/booker-service/issues"
+  },
+  "homepage": "https://github.com/Toshipy/booker-service#readme",
+  "devDependencies": {
+    "serverless-python-requirements": "^6.1.1"
+  }
+}
