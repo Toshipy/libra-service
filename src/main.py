@@ -33,7 +33,7 @@ async def search(keyword: str=None):
       }
     }
 
-    result = client.search(index="japanese-folktalesaa", body=query)
+    result = client.search(index="japanese-folktales", body=query)
 
     hits = result["hits"]["total"]["value"]
 
