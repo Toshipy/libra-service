@@ -29,7 +29,7 @@ async def search(keyword: str=None):
       "query": {
         "multi_match": {
           "query": keyword,
-          "fields": ["title", "story", "attributes"]
+          "fields": ["title"]
         }
       }
     }
