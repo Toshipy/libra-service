@@ -1,9 +1,15 @@
+import uuid
+import boto3
 import datetime
 from fastapi import FastAPI, HTTPException
 from opensearchpy import OpenSearch
 from mangum import Mangum
 import os
-from src.schemas import Book, SearchResult, SearchResponse
+from src.schemas import Book, CreateBook, SearchResult, SearchResponse
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('Books')
+
 app = FastAPI(
   title="Search API",
   description="Search API for OpenSearch",
@@ -55,22 +61,26 @@ async def search(keyword: str=None):
     raise HTTPException(status_code=500, detail=str(e))
   
 @app.post("/books", response_model=Book)
-async def create_book(book: Book):
+async def create_book(book: CreateBook):
   try:
     client = get_opensearch_client()
     now = datetime.datetime.now().isoformat()
-    document = {
-      "id": book.id,
+    # document = {
+    item = {
       "title": book.title,
       "story": book.story,
       "attributes": book.attributes,
+      "id": str(uuid.uuid4()),
       "created_at": now,
       "updated_at": now
     }
     
-    response = client.index(index="japanese-folktales", body=document, id=book.id)
+    # response = client.index(index="japanese-folktales", body=document, id=book.id)
+    # return document
+
+    response = table.put_item(Item=item)
+    return item
     
-    return document
   except Exception as e:
     raise HTTPException(status_code=500, detail=str(e))
   

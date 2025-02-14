@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List
 
 class SearchResponse(BaseModel):
-    id: int
+    id: str
     title: str
     story: str
     attributes: List[str]
@@ -12,9 +12,14 @@ class SearchResponse(BaseModel):
 class SearchResult(BaseModel):
     hits: int
     results: List[SearchResponse]
+    
+class CreateBook(BaseModel):
+    title: str
+    story: str
+    attributes: List[str]
 
 class Book(BaseModel):
-    id: int
+    id: str
     title: str
     story: str
     attributes: List[str]
