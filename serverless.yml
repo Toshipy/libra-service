@@ -15,22 +15,49 @@ provider:
             - dynamodb:*
           Resource:
             - Fn::GetAtt: [BooksTable, Arn]
+package:
+  individually: true 
+  patterns:
+    - '!**'  # まず全部除外
+    - 'requirements.txt'  # requirements.txtも必要
 functions:
   api:
     handler: src.main.handler
+    package:
+      include:
+        - src/main.py
+        - src/schemas.py
+        - src/utils.py
     events:
       - httpApi:
-          path: /docs  # Swagger UI用
+          path: /docs
           method: get
       - httpApi:
-          path: /openapi.json  # OpenAPI仕様用
+          path: /openapi.json
           method: get
       - httpApi:
-          path: /search  # 検索API
+          path: /search
           method: get
       - httpApi:
-          path: /{proxy+}  # その他のパス
-          method: '*'
+          path: /books
+          method: ANY
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
+    layers:
+      - Ref: PythonRequirementsLambdaLayer
+  syncToOpensearch:
+    handler: src.dynamodb_stream.handler
+    package:
+      include:
+        - src/dynamodb_stream.py
+        - src/schemas.py
+        - src/utils.py
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt: [BooksTable, StreamArn]
     layers:
       - Ref: PythonRequirementsLambdaLayer
 resources:
@@ -46,6 +73,8 @@ resources:
           - AttributeName: id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
 plugins:
   - serverless-python-requirements
 custom:
