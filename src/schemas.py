@@ -15,8 +15,6 @@ class SearchResult(BaseModel):
     
 class CreateBook(BaseModel):
     title: str
-    story: str
-    attributes: List[str]
 
 class Book(BaseModel):
     id: str

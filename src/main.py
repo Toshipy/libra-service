@@ -41,10 +41,10 @@ async def create_book(book: CreateBook):
   try:
     now = datetime.datetime.now().isoformat()
     item = {
-      "title": book.title,
-      "story": book.story,
-      "attributes": book.attributes,
       "id": str(uuid.uuid4()),
+      "title": book.title,
+      "story": "",
+      "attributes": [],
       "created_at": now,
       "updated_at": now
     }
