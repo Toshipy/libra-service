@@ -7,6 +7,14 @@ provider:
     OPENSEARCH_ENDPOINT: ${env:OPENSEARCH_ENDPOINT}
     OPENSEARCH_USERNAME: ${env:OPENSEARCH_USERNAME}
     OPENSEARCH_PASSWORD: ${env:OPENSEARCH_PASSWORD}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource:
+            - Fn::GetAtt: [BooksTable, Arn]
 functions:
   api:
     handler: src.main.handler
@@ -25,6 +33,19 @@ functions:
           method: '*'
     layers:
       - Ref: PythonRequirementsLambdaLayer
+resources:
+  Resources:
+    BooksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Books
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
 plugins:
   - serverless-python-requirements
 custom:
