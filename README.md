@@ -18,3 +18,8 @@ serverless offline
 ```
 ### 直近のログを表示
 serverless logs -f api
+
+### リソースの削除
+```
+serverless remove --verbose
+```
