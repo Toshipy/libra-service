@@ -7,6 +7,8 @@ provider:
     OPENSEARCH_ENDPOINT: ${env:OPENSEARCH_ENDPOINT}
     OPENSEARCH_USERNAME: ${env:OPENSEARCH_USERNAME}
     OPENSEARCH_PASSWORD: ${env:OPENSEARCH_PASSWORD}
+    OPENSEARCH_DOMAIN_NAME: ${env:OPENSEARCH_DOMAIN_NAME}
+    IAM_USER_NAME: ${env:IAM_USER_NAME}
   iam:
     role:
       statements:
@@ -15,11 +17,17 @@ provider:
             - dynamodb:*
           Resource:
             - Fn::GetAtt: [BooksTable, Arn]
+        - Effect: Allow
+          Action:
+            - es:ESHttp*
+          Resource:
+            - !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/${self:provider.environment.OPENSEARCH_DOMAIN_NAME}"
+            - !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/${self:provider.environment.OPENSEARCH_DOMAIN_NAME}/*"
 package:
   individually: true 
   patterns:
-    - '!**'  # まず全部除外
-    - 'requirements.txt'  # requirements.txtも必要
+    - '!**'
+    - 'requirements.txt'
 functions:
   api:
     handler: src.main.handler
@@ -75,6 +83,42 @@ resources:
         BillingMode: PAY_PER_REQUEST
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
+    OpenSearchDomain:
+      Type: AWS::OpenSearchService::Domain
+      Properties:
+        DomainName: ${self:provider.environment.OPENSEARCH_DOMAIN_NAME}
+        ClusterConfig:
+          InstanceCount: 1
+          InstanceType: t3.small.search
+          DedicatedMasterEnabled: false
+          ZoneAwarenessEnabled: false
+        EBSOptions:
+          EBSEnabled: true
+          VolumeSize: 10
+          VolumeType: gp2
+        EncryptionAtRestOptions:
+          Enabled: true
+        NodeToNodeEncryptionOptions:
+          Enabled: true
+        DomainEndpointOptions:
+          EnforceHTTPS: true
+          TLSSecurityPolicy: Policy-Min-TLS-1-2-2019-07
+        AdvancedSecurityOptions:
+          Enabled: true
+          InternalUserDatabaseEnabled: true
+          MasterUserOptions:
+            MasterUserName: ${self:provider.environment.OPENSEARCH_USERNAME}
+            MasterUserPassword: ${self:provider.environment.OPENSEARCH_PASSWORD}
+        AccessPolicies:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                AWS: "*"
+              Action: "es:*"
+              Resource:
+                - !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/${self:provider.environment.OPENSEARCH_DOMAIN_NAME}"
+                - !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/${self:provider.environment.OPENSEARCH_DOMAIN_NAME}/*"
 plugins:
   - serverless-python-requirements
 custom:
